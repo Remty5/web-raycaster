@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"incremental": true,
+		"noEmitOnError": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitAny": true,
+		"removeComments": true,
+		"outDir": "dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"lib": ["ES6"],
+		"module": "commonjs",
+		"target": "ES6"
+	},
+	"compileOnSave": true,
+	"include": ["src/**/*.ts"]
+}
