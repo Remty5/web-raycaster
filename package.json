@@ -1,23 +1,32 @@
 {
-  "name": "svg-anim",
-  "version": "0.0.1",
-  "description": "Attempt at making simple demo animations with svg.js",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Remty5/svg-anim.git"
-  },
-  "author": "Remty#4222",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Remty5/svg-anim/issues"
-  },
-  "homepage": "https://github.com/Remty5/svg-anim#readme",
-  "devDependencies": {
-    "prettier": "^2.0.5",
-    "typescript": "^3.9.6"
-  }
+	"name": "svg-anim",
+	"version": "0.0.1",
+	"description": "Attempt at making simple demo animations with svg.js",
+	"main": "dist/server/index.js",
+	"scripts": {
+		"delete": "rm -rf dist",
+		"copy": "cp -r src/app/html dist/app/html",
+		"build": "yarn delete && tsc && yarn copy",
+		"test": "yarn build && node ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Remty5/svg-anim.git"
+	},
+	"author": "Remty#4222",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Remty5/svg-anim/issues"
+	},
+	"homepage": "https://github.com/Remty5/svg-anim#readme",
+	"devDependencies": {
+		"@types/node": "^14.0.14",
+		"prettier": "^2.0.5",
+		"typescript": "^3.9.6",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.12"
+	},
+	"dependencies": {
+		"@svgdotjs/svg.js": "^3.0.16"
+	}
 }
