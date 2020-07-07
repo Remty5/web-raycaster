@@ -10,9 +10,11 @@
 		"noImplicitAny": true,
 		"removeComments": true,
 		"strict": true,
-		"sourceMap": true,
+		"outDir": "dist/server",
+		"lib": ["ES6"],
 		"module": "CommonJS",
-		"lib": ["ES6", "DOM"],
-		"target": "ES5"
-	}
+		"target": "ES6"
+	},
+	"compileOnSave": true,
+	"include": ["src/server"]
 }

@@ -5,8 +5,8 @@
 	"main": "dist/server/index.js",
 	"scripts": {
 		"delete": "rm -rf dist",
-		"copy": "cp -r src/app/html dist/app/html",
-		"build": "yarn delete && tsc && yarn copy",
+		"copy": "cp -r src/app/html/. dist/app",
+		"build": "webpack>/dev/null && tsc -b tsconfig.server.json && yarn copy",
 		"test": "yarn build && node ."
 	},
 	"repository": {
@@ -21,7 +21,9 @@
 	"homepage": "https://github.com/Remty5/svg-anim#readme",
 	"devDependencies": {
 		"@types/node": "^14.0.14",
+		"pnp-webpack-plugin": "^1.6.4",
 		"prettier": "^2.0.5",
+		"ts-loader": "^7.0.5",
 		"typescript": "^3.9.6",
 		"webpack": "^4.43.0",
 		"webpack-cli": "^3.3.12"
