@@ -79,6 +79,6 @@ http.createServer(function (req: http.IncomingMessage, res: http.ServerResponse)
 	res.write(data || 'What the fuck happened?');
 	res.end();
 	// res.end(`You are here: ${urlPath}, ${realPath}`);
-}).listen(port);
-
-console.log(`Web server started at http://localhost:${port}`);
+}).listen(port, () => {
+	console.log(`Web server started at http://localhost:${port}`);
+});

@@ -1,24 +1,24 @@
 {
-	"name": "svg-anim",
+	"name": "web-raycaster",
 	"version": "0.0.1",
-	"description": "Attempt at making simple demo animations with svg.js",
+	"description": "Attempt at making a simple raycaster with canvas",
 	"main": "dist/server/index.js",
 	"scripts": {
 		"delete": "rm -rf dist",
-		"copy": "cp -r src/app/html/. dist/app",
+		"copy": "cp -r src/app/html/. dist/app && cp -r src/app/css dist/app",
 		"build": "webpack>/dev/null && tsc -b tsconfig.server.json && yarn copy",
 		"test": "yarn build && node ."
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Remty5/svg-anim.git"
+		"url": "git+https://github.com/Remty5/web-raycaster.git"
 	},
 	"author": "Remty#4222",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/Remty5/svg-anim/issues"
+		"url": "https://github.com/Remty5/web-raycaster/issues"
 	},
-	"homepage": "https://github.com/Remty5/svg-anim#readme",
+	"homepage": "https://github.com/Remty5/web-raycaster#readme",
 	"devDependencies": {
 		"@types/node": "^14.0.19",
 		"pnp-webpack-plugin": "^1.6.4",
@@ -27,8 +27,5 @@
 		"typescript": "^3.9.6",
 		"webpack": "^4.43.0",
 		"webpack-cli": "^3.3.12"
-	},
-	"dependencies": {
-		"@svgdotjs/svg.js": "^3.0.16"
 	}
 }

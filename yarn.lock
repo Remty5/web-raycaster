@@ -5,13 +5,6 @@ __metadata:
   version: 4
   cacheKey: 4
 
-"@svgdotjs/svg.js@npm:^3.0.16":
-  version: 3.0.16
-  resolution: "@svgdotjs/svg.js@npm:3.0.16"
-  checksum: beb400aaa1b9d6c8d44bf597b4f66b233125cb4e379df882eebead1b158e42b69df206b043ad923e87b731b428a414548c7fca2da9bc79c5dd66e455d27b1511
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^14.0.19":
   version: 14.0.19
   resolution: "@types/node@npm:14.0.19"
@@ -3598,21 +3591,6 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"svg-anim@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "svg-anim@workspace:."
-  dependencies:
-    "@svgdotjs/svg.js": ^3.0.16
-    "@types/node": ^14.0.19
-    pnp-webpack-plugin: ^1.6.4
-    prettier: ^2.0.5
-    ts-loader: ^7.0.5
-    typescript: ^3.9.6
-    webpack: ^4.43.0
-    webpack-cli: ^3.3.12
-  languageName: unknown
-  linkType: soft
-
 "tapable@npm:^1.0.0, tapable@npm:^1.1.3":
   version: 1.1.3
   resolution: "tapable@npm:1.1.3"
@@ -3990,6 +3968,20 @@ typescript@^3.9.6:
   checksum: a9d630dd29279b91bb1b1dd319e9142f13906e8cc973c860e0662828cff84e2a3235a66da62759cb4f12dc76a6f672760e62b2c8a6406ff80d5e4977b5717e83
   languageName: node
   linkType: hard
+
+"web-raycaster@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "web-raycaster@workspace:."
+  dependencies:
+    "@types/node": ^14.0.19
+    pnp-webpack-plugin: ^1.6.4
+    prettier: ^2.0.5
+    ts-loader: ^7.0.5
+    typescript: ^3.9.6
+    webpack: ^4.43.0
+    webpack-cli: ^3.3.12
+  languageName: unknown
+  linkType: soft
 
 "webpack-cli@npm:^3.3.12":
   version: 3.3.12
