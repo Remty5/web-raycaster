@@ -20,7 +20,7 @@
 	},
 	"homepage": "https://github.com/Remty5/svg-anim#readme",
 	"devDependencies": {
-		"@types/node": "^14.0.14",
+		"@types/node": "^14.0.19",
 		"pnp-webpack-plugin": "^1.6.4",
 		"prettier": "^2.0.5",
 		"ts-loader": "^7.0.5",

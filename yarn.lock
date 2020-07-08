@@ -12,10 +12,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.0.14":
-  version: 14.0.14
-  resolution: "@types/node@npm:14.0.14"
-  checksum: 0a2072aa7de32e6535ce6bc7383965fc0a4b7bbf6d76f69027db72e86381921c820a8a2173f75fa210d9fb3286c707079d3804ef33c76a065bcb890858e50ee9
+"@types/node@npm:^14.0.19":
+  version: 14.0.19
+  resolution: "@types/node@npm:14.0.19"
+  checksum: a744f848984b947032acd53161bf33da3df6db60c108b0316b15b7349e14be95d80e281cedd3af4fd3a2679bcab8a77d003241aa24e6e0b745c07223fb9817fa
   languageName: node
   linkType: hard
 
@@ -240,11 +240,11 @@ __metadata:
   linkType: hard
 
 "ajv-keywords@npm:^3.1.0, ajv-keywords@npm:^3.4.1":
-  version: 3.5.0
-  resolution: "ajv-keywords@npm:3.5.0"
+  version: 3.5.1
+  resolution: "ajv-keywords@npm:3.5.1"
   peerDependencies:
     ajv: ^6.9.1
-  checksum: 8e1823247156cea3169366299eb9e71b3f89e8b8c26e8a3157873613686bacc949743a84a9348cc20d090eccf8190332b5dae89dc79495f2170d9f6fc5bd2df8
+  checksum: f91a8a5304d1f314f5ec1429c9bd895964df50eb8455430ce51d79d38fd2ed63e807dbd1966eb759ac25c06b32485ccc8a2735145836ce01fffe13859c449ea0
   languageName: node
   linkType: hard
 
@@ -3603,7 +3603,7 @@ fsevents@~2.1.2:
   resolution: "svg-anim@workspace:."
   dependencies:
     "@svgdotjs/svg.js": ^3.0.16
-    "@types/node": ^14.0.14
+    "@types/node": ^14.0.19
     pnp-webpack-plugin: ^1.6.4
     prettier: ^2.0.5
     ts-loader: ^7.0.5
