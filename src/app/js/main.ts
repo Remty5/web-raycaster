@@ -50,8 +50,8 @@ window.onload = function () {
 	canvas = document.getElementById('raycaster-canvas') as HTMLCanvasElement;
 	ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-	canvas.addEventListener('keydown', e => handleInput(e.key, true));
-	canvas.addEventListener('keyup', e => handleInput(e.key, false));
+	document.addEventListener('keydown', e => handleInput(e.key, true));
+	document.addEventListener('keyup', e => handleInput(e.key, false));
 	// canvas.addEventListener('keydown', e => {
 	// 	if (e.key == 'z') keysDown.z = true;
 	// 	if (e.key == 'q') keysDown.q = true;
