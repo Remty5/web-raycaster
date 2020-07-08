@@ -50,26 +50,38 @@ window.onload = function () {
 	canvas = document.getElementById('raycaster-canvas') as HTMLCanvasElement;
 	ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-	addEventListener('keydown', e => handleInput(e.key, true));
-	addEventListener('keyup', e => handleInput(e.key, false));
+	canvas.addEventListener('keydown', e => handleInput(e.key, true));
+	canvas.addEventListener('keyup', e => handleInput(e.key, false));
+	// canvas.addEventListener('keydown', e => {
+	// 	if (e.key == 'z') keysDown.z = true;
+	// 	if (e.key == 'q') keysDown.q = true;
+	// 	if (e.key == 's') keysDown.s = true;
+	// 	if (e.key == 'd') keysDown.d = true;
+	// });
+	// canvas.addEventListener('keyup', e => {
+	// 	if (e.key == 'z') keysDown.z = false;
+	// 	if (e.key == 'q') keysDown.q = false;
+	// 	if (e.key == 's') keysDown.s = false;
+	// 	if (e.key == 'd') keysDown.d = false;
+	// });
 
 	setInterval(tick, 1000 / fps);
 	// tick();
 };
 
-function handleInput(key: string, down: boolean) {
+function handleInput(key: string, currentStatus: boolean) {
 	switch (key) {
 		case 'z':
-			keysDown.z = down;
+			keysDown.z = currentStatus;
 			break;
 		case 'q':
-			keysDown.q = down;
+			keysDown.q = currentStatus;
 			break;
 		case 's':
-			keysDown.s = down;
+			keysDown.s = currentStatus;
 			break;
 		case 'd':
-			keysDown.d = down;
+			keysDown.d = currentStatus;
 			break;
 		default:
 			break;
