@@ -1,13 +1,21 @@
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let fps = 60;
+
+//* Player starting position
 let playerX: number = 60;
 let playerY: number = 60;
+
+//* Player rotation and movement speed
 let playerMovementSpeed: number = 2;
 let playerRotationSpeed: number = 0.05;
+
+//* Initial player direction
 let playerA: number = Math.PI / 4;
 let playerDX: number = Math.cos(playerA) * playerMovementSpeed;
 let playerDY: number = Math.sin(playerA) * playerMovementSpeed;
+
+let debugColor = 'DodgerBlue';
 
 let keysDown = {
 	z: false,
@@ -15,8 +23,14 @@ let keysDown = {
 	s: false,
 	d: false,
 };
+//* Level dimensions for later use
 let levelCanvasDimensions = { width: 600, height: 600 };
 let levelMapDimensions = { width: 24, height: 24 };
+let levelCellDimensions = {
+	width: levelCanvasDimensions.width / levelMapDimensions.width,
+	height: levelCanvasDimensions.height / levelMapDimensions.height,
+};
+//* Level map
 // prettier-ignore
 let levelMap = [
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -106,23 +120,77 @@ function calculateMovement() {
 }
 
 function renderScreen() {
-	// Background
+	//* Background
 	fillRect(0, 0, canvas.width, canvas.height, 'DarkGray');
 
-	// Level
+	//* Level
 	drawLevel();
 
-	// Player direction
+	//* Player direction
 	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 2, 'red');
 
+	//* Rays
+	drawRays3D();
+
+	//* Player
 	let playerSize = 10;
 	fillRect(playerX - playerSize / 2, playerY - playerSize / 2, playerSize, playerSize, 'Green');
-	// Debug
-	fillText(playerX, 3, 10, 'Black');
-	fillText(playerY, 3, 20, 'Black');
-	fillText(playerDX, 3, 30, 'Black');
-	fillText(playerDY, 3, 40, 'Black');
-	fillText(playerA, 3, 50, 'Black');
+
+	//* Debug
+	fillText(`Player: ${playerX}, ${playerY}`, 3, 10, debugColor);
+	fillText(`Player direction: ${playerDX}, ${playerDY}`, 3, 20, debugColor);
+	fillText(`Player angle: ${playerA}`, 3, 30, debugColor);
+}
+
+function drawRays3D() {
+	// Create needed variables
+	// let ray, mapX, mapY, mapPosition, dof, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
+	let ray, rayX, rayY, rayA: number;
+	// Set ray angle to player angle
+	rayA = playerA;
+	// Cast one ray for now
+	for (ray = 0; ray < 1; ray++) {
+		// Shut up typescript
+		rayX = 0;
+		rayY = 0;
+		// rayOffsetX = 0;
+		// rayOffsetY = 0;
+		// dof = 0;
+		// Get the negative inverse of tan() for the ray angle
+		let negativeInverseTan = -1 / Math.tan(rayA);
+		// Ray angle greater than PI means it's looking up
+		if (rayA > Math.PI) {
+			// Ray Y position is the player position rounded to the nearest horizontal grid line
+			rayY = Math.round(playerY / levelCellDimensions.height);
+			// Ray X position is the difference between the player's
+			rayX = (playerY - rayY) * negativeInverseTan + playerX;
+
+			fillLine(playerX, playerY, rayX, rayY, 1, 'Blue');
+			fillText(`Ray x: ${rayX}`, 3, 40, debugColor);
+			fillText(`Ray y: ${rayY}`, 3, 50, debugColor);
+
+			// rayOffsetY = -64;
+			// rayOffsetX = -rayOffsetY * negativeInverseTan;
+			// fillText(rayOffsetY, 3, 60, 'Black');
+			// fillText(rayOffsetX, 3, 60, 'Black');
+		}
+		// if (rayA == 0 || rayA == Math.PI) {
+		// 	rayX = playerX;
+		// 	rayY = playerY;
+		// 	dof = 8;
+		// }
+		// while (dof < 8) {
+		// 	mapX = Math.round(rayX / 64);
+		// 	mapY = Math.round(rayY / 64);
+		// 	mapPosition = mapY * levelMapDimensions.width + mapX;
+		// 	if (mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) break;
+		// 	else {
+		// 		rayX += rayOffsetX;
+		// 		rayY += rayOffsetY;
+		// 		dof++;
+		// 	}
+		// }
+	}
 }
 
 function handleInput(key: string, currentStatus: boolean) {
@@ -149,8 +217,6 @@ function drawLevel() {
 		// console.log(n, i);
 		let c = i % levelMapDimensions.width;
 		let l = Math.floor(i / levelMapDimensions.height);
-		let width: number = levelCanvasDimensions.width / levelMapDimensions.width;
-		let height: number = levelCanvasDimensions.height / levelMapDimensions.height;
 		let color;
 		switch (n) {
 			case 0:
@@ -184,10 +250,10 @@ function drawLevel() {
 				color = 'Black';
 				break;
 		}
-		// Offset:
-		fillRect(width * c + 1, height * l + 1, width - 1, height - 1, color);
-		// No offset:
-		// fillRect(width * c, height * l, width, height, color);
+		// Offset (grid pattern):
+		fillRect(levelCellDimensions.width * c + 1, levelCellDimensions.height * l + 1, levelCellDimensions.width - 1, levelCellDimensions.height - 1, color);
+		// No offset (no grid pattern):
+		// fillRect(levelCellDimensions.width * c, levelCellDimensions.height * l, levelCellDimensions.width, levelCellDimensions.height, color);
 	});
 }
 
