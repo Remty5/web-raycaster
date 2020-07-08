@@ -15,21 +15,47 @@ let keysDown = {
 	s: false,
 	d: false,
 };
+let levelCanvasDimensions = { width: 600, height: 600 };
+let levelMapDimensions = { width: 24, height: 24 };
 // prettier-ignore
-let level = [
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
-	1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1,
-	1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1,
-	1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+let levelMap = [
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 7, 7, 0, 8, 8, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 7, 7, 0, 8, 8, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 ]
+
+window.onload = function () {
+	console.log('Hello world!');
+	canvas = document.getElementById('raycaster-canvas') as HTMLCanvasElement;
+	ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+	addEventListener('keydown', e => handleInput(e.key, true));
+	addEventListener('keyup', e => handleInput(e.key, false));
+
+	setInterval(tick, 1000 / fps);
+	// tick();
+};
 
 function handleInput(key: string, down: boolean) {
 	switch (key) {
@@ -49,19 +75,6 @@ function handleInput(key: string, down: boolean) {
 			break;
 	}
 }
-
-window.onload = function () {
-	console.log('Hello world!');
-	canvas = document.getElementById('raycaster-canvas') as HTMLCanvasElement;
-	ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-	addEventListener('keydown', e => handleInput(e.key, true));
-	addEventListener('keyup', e => handleInput(e.key, false));
-
-	setInterval(tick, 1000 / fps);
-	// tick();
-};
-
 function tick() {
 	calculateMovement();
 	renderScreen();
@@ -100,18 +113,10 @@ function calculateMovement() {
 
 function renderScreen() {
 	// Background
-	fillRect(0, 0, canvas.width, canvas.height, 'black');
+	fillRect(0, 0, canvas.width, canvas.height, 'DarkGray');
 
 	// Level
-	level.forEach((n, i) => {
-		// console.log(n, i);
-		let l = Math.floor(i / 12);
-		let c = i % 12;
-		// Fun
-		// n = Math.round(Math.random());
-		if (n) fillRect(c * 50, l * 50, 50, 50, 'White');
-		else fillRect(c * 50, l * 50, 50, 50, 'DarkGray');
-	});
+	drawLevel();
 
 	// Player direction
 	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 2, 'red');
@@ -124,6 +129,53 @@ function renderScreen() {
 	fillText(playerDX, 3, 30, 'Black');
 	fillText(playerDY, 3, 40, 'Black');
 	fillText(playerA, 3, 50, 'Black');
+}
+
+function drawLevel() {
+	levelMap.forEach((n, i) => {
+		// console.log(n, i);
+		let c = i % levelMapDimensions.width;
+		let l = Math.floor(i / levelMapDimensions.height);
+		let width: number = levelCanvasDimensions.width / levelMapDimensions.width;
+		let height: number = levelCanvasDimensions.height / levelMapDimensions.height;
+		let color;
+		switch (n) {
+			case 0:
+				color = 'Black';
+				break;
+			case 1:
+				color = 'White';
+				break;
+			case 2:
+				color = 'Blue';
+				break;
+			case 3:
+				color = 'Red';
+				break;
+			case 4:
+				color = 'Green';
+				break;
+			case 5:
+				color = 'Coral';
+				break;
+			case 6:
+				color = 'LimeGreen';
+				break;
+			case 7:
+				color = 'DeepSkyBlue';
+				break;
+			case 8:
+				color = 'Gold';
+				break;
+			default:
+				color = 'Black';
+				break;
+		}
+		// Offset:
+		fillRect(width * c + 1, height * l + 1, width - 1, height - 1, color);
+		// No offset:
+		// fillRect(width * c, height * l, width, height, color);
+	});
 }
 
 function fillLine(startX: number, startY: number, endX: number, endY: number, width: number, color: any) {
