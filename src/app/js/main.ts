@@ -69,24 +69,6 @@ window.onload = function () {
 	// tick();
 };
 
-function handleInput(key: string, currentStatus: boolean) {
-	switch (key) {
-		case 'z':
-			keysDown.z = currentStatus;
-			break;
-		case 'q':
-			keysDown.q = currentStatus;
-			break;
-		case 's':
-			keysDown.s = currentStatus;
-			break;
-		case 'd':
-			keysDown.d = currentStatus;
-			break;
-		default:
-			break;
-	}
-}
 function tick() {
 	calculateMovement();
 	renderScreen();
@@ -141,6 +123,25 @@ function renderScreen() {
 	fillText(playerDX, 3, 30, 'Black');
 	fillText(playerDY, 3, 40, 'Black');
 	fillText(playerA, 3, 50, 'Black');
+}
+
+function handleInput(key: string, currentStatus: boolean) {
+	switch (key) {
+		case 'z':
+			keysDown.z = currentStatus;
+			break;
+		case 'q':
+			keysDown.q = currentStatus;
+			break;
+		case 's':
+			keysDown.s = currentStatus;
+			break;
+		case 'd':
+			keysDown.d = currentStatus;
+			break;
+		default:
+			break;
+	}
 }
 
 function drawLevel() {
