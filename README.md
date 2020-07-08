@@ -1,6 +1,6 @@
-# svg-anim
+# web-raycaster
 
-Attempt at making simple demo animations with [svg.js](https://svgjs.com/docs/3.0)
+Attempt at making a simple raycaster with canvas.
 
 Other things used:
 
