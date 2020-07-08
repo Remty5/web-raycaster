@@ -1,8 +1,8 @@
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let fps = 60;
-let playerX: number = 55;
-let playerY: number = 55;
+let playerX: number = 60;
+let playerY: number = 60;
 let playerMovementSpeed: number = 2;
 let playerRotationSpeed: number = 0.05;
 let playerA: number = Math.PI / 4;
@@ -113,7 +113,9 @@ function renderScreen() {
 		else fillRect(c * 50, l * 50, 50, 50, 'DarkGray');
 	});
 
-	// Player
+	// Player direction
+	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 2, 'red');
+
 	let playerSize = 10;
 	fillRect(playerX - playerSize / 2, playerY - playerSize / 2, playerSize, playerSize, 'Green');
 	// Debug
@@ -122,6 +124,16 @@ function renderScreen() {
 	fillText(playerDX, 3, 30, 'Black');
 	fillText(playerDY, 3, 40, 'Black');
 	fillText(playerA, 3, 50, 'Black');
+}
+
+function fillLine(startX: number, startY: number, endX: number, endY: number, width: number, color: any) {
+	ctx.lineWidth = width;
+	ctx.strokeStyle = color;
+	ctx.beginPath();
+	ctx.moveTo(startX, startY);
+	ctx.lineTo(endX, endY);
+	ctx.closePath();
+	ctx.stroke();
 }
 
 function fillText(text: any, x: number, y: number, color: any, maxWidth?: number) {
