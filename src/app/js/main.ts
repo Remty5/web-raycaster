@@ -113,8 +113,6 @@ function debugInit() {
 
 	//* Init default values
 	debugActive['Main'] = true;
-	debugActive['RayText'] = true;
-	debugActive['RayLine'] = true;
 }
 
 function addDebugToggle(buttonID: string) {
