@@ -3,8 +3,8 @@ let ctx: CanvasRenderingContext2D;
 let fps = 60;
 
 //* Debug (info...)
-let debugActive: boolean = true;
-let debugLine: number;
+let debugActive: { [id: string]: boolean } = {};
+let debugTextLine: number;
 
 //* Player starting position
 let playerX: number = 413;
@@ -73,22 +73,48 @@ window.onload = function () {
 
 	document.addEventListener('keydown', e => handleInput(e.key, true));
 	document.addEventListener('keyup', e => handleInput(e.key, false));
-	// canvas.addEventListener('keydown', e => {
-	// 	if (e.key == 'z') keysDown.z = true;
-	// 	if (e.key == 'q') keysDown.q = true;
-	// 	if (e.key == 's') keysDown.s = true;
-	// 	if (e.key == 'd') keysDown.d = true;
-	// });
-	// canvas.addEventListener('keyup', e => {
-	// 	if (e.key == 'z') keysDown.z = false;
-	// 	if (e.key == 'q') keysDown.q = false;
-	// 	if (e.key == 's') keysDown.s = false;
-	// 	if (e.key == 'd') keysDown.d = false;
-	// });
+
+	//* Initialize debug
+	debugInit();
 
 	setInterval(tick, 1000 / fps);
 	// tick();
 };
+
+function debugInit() {
+	//* Add toggles
+	addDebugToggle('Main');
+	addDebugToggle('Text');
+
+	addDebugToggle('HorizontalRayText');
+	addDebugToggle('HorizontalRayMapChecks');
+	addDebugToggle('HorizontalRayHitMarker');
+	addDebugToggle('HorizontalRayLine');
+	addDebugToggle('HorizontalRayOffsetLine');
+
+	addDebugToggle('VerticalRayText');
+	addDebugToggle('VerticalRayMapChecks');
+	addDebugToggle('VerticalRayHitMarker');
+	addDebugToggle('VerticalRayLine');
+	addDebugToggle('VerticalRayOffsetLine');
+
+	addDebugToggle('RayText');
+	addDebugToggle('RayLine');
+
+	//* Init default values
+	debugActive['Main'] = true;
+	debugActive['RayText'] = true;
+	debugActive['RayLine'] = true;
+}
+
+function addDebugToggle(buttonID: string) {
+	let button = document.getElementById(buttonID) as HTMLButtonElement;
+	debugActive[buttonID] = false;
+	button.onclick = function () {
+		debugActive[buttonID] = !debugActive[buttonID];
+		button.innerHTML = `${buttonID}: ${debugActive[buttonID]}`;
+	};
+}
 
 function tick() {
 	resetCounters();
@@ -97,14 +123,10 @@ function tick() {
 }
 
 function resetCounters() {
-	debugLine = 0;
+	debugTextLine = 0;
 }
 
 function calculateMovement() {
-	// if (keysDown.z && playerY - 5 > 0) playerY -= 5;
-	// if (keysDown.s && playerY + 5 < canvas.height) playerY += 5;
-	// if (keysDown.q && playerX - 5 > 0) playerX -= 5;
-	// if (keysDown.d && playerX + 5 < canvas.width / 2) playerX += 5;
 	if (keysDown.z) {
 		if (playerX + playerDX > 0 && playerX + playerDX < canvas.width / 2) playerX += playerDX;
 		if (playerY + playerDY > 0 && playerY + playerDY < canvas.height) playerY += playerDY;
@@ -140,16 +162,16 @@ function renderScreen() {
 	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 6, 'Red');
 
 	//* Debug
-	debugText(`Player: ${Math.round(playerX)}, ${Math.round(playerY)}`);
-	debugText(`Player direction: ${Math.round((playerDX + Number.EPSILON) * 100) / 100}, ${Math.round((playerDY + Number.EPSILON) * 100) / 100}`);
-	debugText(`Player angle: ${Math.round((playerA + Number.EPSILON) * 100) / 100}`);
+	debugText(`Player: ${Math.round(playerX)}, ${Math.round(playerY)}`, 'Text');
+	debugText(`Player direction: ${Math.round((playerDX + Number.EPSILON) * 100) / 100}, ${Math.round((playerDY + Number.EPSILON) * 100) / 100}`, 'Text');
+	debugText(`Player angle: ${Math.round((playerA + Number.EPSILON) * 100) / 100}`, 'Text');
 
 	//* Rays
 	drawRays3D();
 
 	//* Player
 	let playerSize = 10;
-	fillRect(playerX - playerSize / 2, playerY - playerSize / 2, playerSize, playerSize, 'Green');
+	fillCentredRect(playerX, playerY, playerSize, playerSize, 'Green');
 }
 
 function drawRays3D() {
@@ -165,7 +187,19 @@ function drawRays3D() {
 		rayOffsetX = 0;
 		rayOffsetY = 0;
 		dof = 0;
-		maxDof = 10;
+		maxDof = 30;
+		mapX = 0;
+		mapY = 0;
+
+		//*
+		//*  Horizontal lines
+		//*
+
+		// Init for ray distance
+		let rayHorizontalDistance = 100000;
+		let rayHorizontalX = playerX;
+		let rayHorizontalY = playerY;
+
 		// Get the negative inverse of tan() for the ray angle
 		let negativeInverseTan = -1 / Math.tan(rayA);
 		//* Ray angle greater than PI means it's going up
@@ -181,6 +215,8 @@ function drawRays3D() {
 			// Next X offset is the negative of the Y offset (so that it's positive)
 			// times the negative inverse of tan() for the ray's angle
 			rayOffsetX = -rayOffsetY * negativeInverseTan;
+
+			debugCentredRect(rayX, rayY, 6, 6, 'HorizontalRayHitMarker', 'Red');
 		}
 		//* Ray angle smaller than PI means it's going down
 		if (rayA < Math.PI) {
@@ -194,57 +230,198 @@ function drawRays3D() {
 			rayOffsetY = levelCellDimensions.height;
 			// Next X offset is the Y offset times the negative inverse of tan() for the ray's angle
 			rayOffsetX = -rayOffsetY * negativeInverseTan;
+
+			debugCentredRect(rayX, rayY, 6, 6, 'HorizontalRayHitMarker', 'Red');
 		}
-		//* Looking straight left or right
+		//* Going straight left or right
 		if (rayA === 0 || rayA === Math.PI) {
 			rayX = playerX;
 			rayY = playerY;
+			rayOffsetX = 0;
+			rayOffsetY = 0;
 			dof = maxDof;
 		}
 
 		//* While no wall has been hit
 		while (dof < maxDof) {
+			// Calculate the ray X hit position on the map
 			mapX = Math.floor(rayX / levelCellDimensions.width);
-			mapY = Math.floor(rayY / levelCellDimensions.height);
+			// Calculate the ray Y position on the map
+			// I don't like this, i don't know why it doesn't work but i have to do this terrible thing
+			if (Math.sign(rayOffsetY) === -1) {
+				// Looking up, offset wall check one up
+				mapY = Math.floor(rayY / levelCellDimensions.height) - 1;
+			}
+			if (Math.sign(rayOffsetY) === 1) {
+				// Looking down, no need for offset
+				mapY = Math.floor(rayY / levelCellDimensions.height);
+			}
 			mapPosition = mapY * levelMapDimensions.width + mapX;
 			// Check is ray hit a wall
-			if (mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
+			if (mapPosition > 0 && mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
 				// Wall hit, stop while loop
-				strokeRect(
+				debugStrokeRect(
 					mapX * levelCellDimensions.width + 1,
 					mapY * levelCellDimensions.height + 1,
 					levelCellDimensions.width - 1,
 					levelCellDimensions.height - 1,
 					2,
-					'lime'
+					'HorizontalRayMapChecks',
+					'Lime'
 				);
+
+				debugCentredRect(rayX, rayY, 6, 6, 'HorizontalRayHitMarker', 'Lime');
+
+				rayHorizontalX = rayX;
+				rayHorizontalY = rayY;
+				rayHorizontalDistance = calculateDistance(playerX, playerY, rayHorizontalX, rayHorizontalY);
 				break;
 			} else {
-				strokeRect(
+				debugStrokeRect(
 					mapX * levelCellDimensions.width + 1,
 					mapY * levelCellDimensions.height + 1,
 					levelCellDimensions.width - 1,
 					levelCellDimensions.height - 1,
 					2,
-					'red'
+					'HorizontalRayMapChecks',
+					'Red'
 				);
+				debugCentredRect(rayX, rayY, 6, 6, 'HorizontalRayHitMarker', 'Red');
 				rayX += rayOffsetX;
 				rayY += rayOffsetY;
 				dof++;
 			}
 		}
 
-		// fillLine(playerX, playerY, rayX, rayY, 4, 'DeepSkyBlue');
-		// fillLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'Orange');
-		fillRect(rayX - 3, rayY - 3, 6, 6, 'Yellow');
+		debugLine(playerX, playerY, rayX, rayY, 4, 'HorizontalRayLine', 'DeepSkyBlue');
+		debugLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'HorizontalRayOffsetLine', 'Orange');
 
-		debugText(`Ray Angle: ${Math.round((rayX + Number.EPSILON) * 100) / 100}`);
-		debugText(`Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`);
-		debugText(`Ray offset: ${Math.round(rayOffsetX)}, ${Math.round(rayOffsetY)}`);
-		debugText(`Current dof: ${dof}`);
-		debugText(`Map: ${mapX}, ${mapY}`);
-		debugText(`Map position: ${mapPosition}`);
+		debugText(`Horizontal Ray Angle: ${Math.round((rayA + Number.EPSILON) * 100) / 100}`, 'HorizontalRayText');
+		debugText(`Horizontal Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`, 'HorizontalRayText');
+		debugText(`Horizontal Ray offset: ${Math.round(rayOffsetX)}, ${Math.round(rayOffsetY)}`, 'HorizontalRayText');
+		debugText(`Horizontal Current dof: ${dof}`, 'HorizontalRayText');
+		debugText(`Horizontal Map: ${mapX}, ${mapY}`, 'HorizontalRayText');
+		debugText(`Horizontal Map position: ${mapPosition}`, 'HorizontalRayText');
+
+		// Reinitialize dof
+		dof = 0;
+
+		//*
+		//*  Vertical lines
+		//*
+
+		// Init for ray distance
+		let rayVerticalDistance = 100000;
+		let rayVerticalX = playerX;
+		let rayVerticalY = playerY;
+
+		// Get the negative of tan() for the ray angle
+		let negativeTan = -Math.tan(rayA);
+		//* Ray going left
+		if (rayA > Math.PI / 2 && rayA < (3 * Math.PI) / 2) {
+			rayX = Math.floor(playerX / levelCellDimensions.width) * levelCellDimensions.width;
+			rayY = (playerX - rayX) * negativeTan + playerY;
+			rayOffsetX = -levelCellDimensions.width;
+			rayOffsetY = -rayOffsetX * negativeTan;
+
+			debugCentredRect(rayX, rayY, 6, 6, 'VerticalRayHitMarker', 'Red');
+		}
+		//* Ray going right
+		if (rayA < Math.PI / 2 || rayA > (3 * Math.PI) / 2) {
+			rayX = (Math.floor(playerX / levelCellDimensions.width) + 1) * levelCellDimensions.width;
+			rayY = (playerX - rayX) * negativeTan + playerY;
+			rayOffsetX = levelCellDimensions.width;
+			rayOffsetY = -rayOffsetX * negativeTan;
+
+			debugCentredRect(rayX, rayY, 6, 6, 'VerticalRayHitMarker', 'Red');
+		}
+		//* Going straight up or down
+		if (rayA === Math.PI / 2 || rayA === (3 * Math.PI) / 2) {
+			rayX = playerX;
+			rayY = playerY;
+			rayOffsetX = 0;
+			rayOffsetY = 0;
+			dof = maxDof;
+		}
+
+		//* While no wall has been hit
+		while (dof < maxDof) {
+			if (Math.sign(rayOffsetX) === -1) {
+				mapX = Math.floor(rayX / levelCellDimensions.width) - 1;
+			}
+			if (Math.sign(rayOffsetX) === 1) {
+				mapX = Math.floor(rayX / levelCellDimensions.width);
+			}
+			mapY = Math.floor(rayY / levelCellDimensions.height);
+			mapPosition = mapY * levelMapDimensions.width + mapX;
+			if (mapPosition > 0 && mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
+				debugStrokeRect(
+					mapX * levelCellDimensions.width + 1,
+					mapY * levelCellDimensions.height + 1,
+					levelCellDimensions.width - 1,
+					levelCellDimensions.height - 1,
+					2,
+					'VerticalRayMapChecks',
+					'Lime'
+				);
+				debugCentredRect(rayX, rayY, 6, 6, 'VerticalRayHitMarker', 'Lime');
+
+				rayVerticalX = rayX;
+				rayVerticalY = rayY;
+				rayVerticalDistance = calculateDistance(playerX, playerY, rayVerticalX, rayVerticalY);
+				break;
+			} else {
+				debugStrokeRect(
+					mapX * levelCellDimensions.width + 1,
+					mapY * levelCellDimensions.height + 1,
+					levelCellDimensions.width - 1,
+					levelCellDimensions.height - 1,
+					2,
+					'VerticalRayMapChecks',
+					'Red'
+				);
+				debugCentredRect(rayX, rayY, 6, 6, 'VerticalRayHitMarker', 'Red');
+
+				rayX += rayOffsetX;
+				rayY += rayOffsetY;
+				dof++;
+			}
+		}
+
+		debugLine(playerX, playerY, rayX, rayY, 4, 'VerticalRayLine', 'DeepSkyBlue');
+		debugLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'VerticalRayOffsetLine', 'Orange');
+
+		debugText(`Vertical Ray Angle: ${Math.round((rayA + Number.EPSILON) * 100) / 100}`, 'VerticalRayText');
+		debugText(`Vertical Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`, 'VerticalRayText');
+		debugText(`Vertical Ray offset: ${Math.round(rayOffsetX)}, ${Math.round(rayOffsetY)}`, 'VerticalRayText');
+		debugText(`Vertical Current dof: ${dof}`, 'VerticalRayText');
+		debugText(`Vertical Map: ${mapX}, ${mapY}`, 'VerticalRayText');
+		debugText(`Vertical Map position: ${mapPosition}`, 'VerticalRayText');
+
+		//*
+		//* Calculate shortest distance
+		//*
+
+		if (rayHorizontalDistance < rayVerticalDistance) {
+			rayX = rayHorizontalX;
+			rayY = rayHorizontalY;
+		} else if (rayHorizontalDistance > rayVerticalDistance) {
+			rayX = rayVerticalX;
+			rayY = rayVerticalY;
+		} else {
+			rayX = rayHorizontalX;
+			rayY = rayHorizontalY;
+		}
+
+		debugLine(playerX, playerY, rayX, rayY, 4, 'RayLine', 'Yellow');
+
+		debugText(`Ray Angle: ${Math.round((rayA + Number.EPSILON) * 100) / 100}`, 'RayText');
+		debugText(`Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`, 'RayText');
 	}
+}
+
+function calculateDistance(aX: number, aY: number, bX: number, bY: number): number {
+	return Math.sqrt(Math.pow(bX - aX, 2) * Math.pow(bY - aY, 2));
 }
 
 function handleInput(key: string, currentStatus: boolean) {
@@ -337,30 +514,65 @@ function fillLine(startX: number, startY: number, endX: number, endY: number, wi
 	ctx.stroke();
 }
 
-function debugText(text: string) {
-	if (debugActive) {
-		let textX = 6;
-		let textY = debugLine * 32 + 32;
-
-		ctx.fillStyle = 'White';
-		ctx.font = '28px sans-serif';
-		ctx.fillText(text, textX, textY);
-
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = 'Black';
-		ctx.strokeText(text, textX, textY);
-
-		debugLine++;
-	}
-}
-
 function fillRect(x: number, y: number, width: number, height: number, color: any) {
 	ctx.fillStyle = color;
 	ctx.fillRect(x, y, width, height);
+}
+function fillCentredRect(x: number, y: number, width: number, height: number, color: any) {
+	ctx.fillStyle = color;
+	ctx.fillRect(x - width / 2, y - width / 2, width, height);
 }
 
 function strokeRect(x: number, y: number, width: number, height: number, lineWidth: number, color: any) {
 	ctx.strokeStyle = color;
 	ctx.lineWidth = lineWidth;
 	ctx.strokeRect(x, y, width, height);
+}
+
+//* Debug renders
+
+function debugRender(type: string): boolean {
+	if (!debugActive['Main']) return false;
+	return debugActive[type];
+}
+
+function debugLine(startX: number, startY: number, endX: number, endY: number, width: number, type: string, color: any) {
+	if (!debugRender(type)) return;
+	ctx.lineWidth = width;
+	ctx.strokeStyle = color;
+	ctx.beginPath();
+	ctx.moveTo(startX, startY);
+	ctx.lineTo(endX, endY);
+	ctx.closePath();
+	ctx.stroke();
+}
+
+function debugStrokeRect(x: number, y: number, width: number, height: number, lineWidth: number, type: string, color: any) {
+	if (!debugRender(type)) return;
+	ctx.strokeStyle = color;
+	ctx.lineWidth = lineWidth;
+	ctx.strokeRect(x, y, width, height);
+}
+
+function debugCentredRect(x: number, y: number, width: number, height: number, type: string, color: any) {
+	if (!debugRender(type)) return;
+	ctx.fillStyle = color;
+	ctx.fillRect(x - width / 2, y - width / 2, width, height);
+}
+
+function debugText(text: string, type: string) {
+	if (!debugRender('Text')) return;
+	if (!debugRender(type)) return;
+	let textX = 6;
+	let textY = debugTextLine * 32 + 32;
+
+	ctx.fillStyle = 'White';
+	ctx.font = '28px sans-serif';
+	ctx.fillText(text, textX, textY);
+
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = 'Black';
+	ctx.strokeText(text, textX, textY);
+
+	debugTextLine++;
 }
