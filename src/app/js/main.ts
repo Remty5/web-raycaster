@@ -2,6 +2,10 @@ let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let fps = 60;
 
+//* Debug (info...)
+let debugActive: boolean = true;
+let debugLine: number;
+
 //* Player starting position
 let playerX: number = 60;
 let playerY: number = 60;
@@ -12,10 +16,13 @@ let playerRotationSpeed: number = 0.05;
 
 //* Initial player direction
 let playerA: number = Math.PI / 4;
-let playerDX: number = Math.cos(playerA) * playerMovementSpeed;
-let playerDY: number = Math.sin(playerA) * playerMovementSpeed;
-
-let debugColor = 'DodgerBlue';
+let playerDX: number;
+let playerDY: number;
+function calculatePlayerDirections() {
+	playerDX = Math.cos(playerA) * playerMovementSpeed;
+	playerDY = Math.sin(playerA) * playerMovementSpeed;
+}
+calculatePlayerDirections();
 
 let keysDown = {
 	z: false,
@@ -84,8 +91,13 @@ window.onload = function () {
 };
 
 function tick() {
+	resetCounters();
 	calculateMovement();
 	renderScreen();
+}
+
+function resetCounters() {
+	debugLine = 0;
 }
 
 function calculateMovement() {
@@ -102,8 +114,7 @@ function calculateMovement() {
 		if (playerA < 0) {
 			playerA += Math.PI * 2;
 		}
-		playerDX = Math.cos(playerA) * playerMovementSpeed;
-		playerDY = Math.sin(playerA) * playerMovementSpeed;
+		calculatePlayerDirections();
 	}
 	if (keysDown.s) {
 		if (playerX - playerDX > 0 && playerX - playerDX < canvas.width / 2) playerX -= playerDX;
@@ -114,8 +125,7 @@ function calculateMovement() {
 		if (playerA > Math.PI * 2) {
 			playerA -= Math.PI * 2;
 		}
-		playerDX = Math.cos(playerA) * playerMovementSpeed;
-		playerDY = Math.sin(playerA) * playerMovementSpeed;
+		calculatePlayerDirections();
 	}
 }
 
@@ -127,7 +137,12 @@ function renderScreen() {
 	drawLevel();
 
 	//* Player direction
-	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 2, 'red');
+	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 6, 'Red');
+
+	//* Debug
+	debugText(`Player: ${Math.round(playerX)}, ${Math.round(playerY)}`);
+	debugText(`Player direction: ${Math.round((playerDX + Number.EPSILON) * 100) / 100}, ${Math.round((playerDY + Number.EPSILON) * 100) / 100}`);
+	debugText(`Player angle: ${Math.round((playerA + Number.EPSILON) * 100) / 100}`);
 
 	//* Rays
 	drawRays3D();
@@ -135,45 +150,57 @@ function renderScreen() {
 	//* Player
 	let playerSize = 10;
 	fillRect(playerX - playerSize / 2, playerY - playerSize / 2, playerSize, playerSize, 'Green');
-
-	//* Debug
-	fillText(`Player: ${playerX}, ${playerY}`, 3, 10, debugColor);
-	fillText(`Player direction: ${playerDX}, ${playerDY}`, 3, 20, debugColor);
-	fillText(`Player angle: ${playerA}`, 3, 30, debugColor);
 }
 
 function drawRays3D() {
 	// Create needed variables
 	// let ray, mapX, mapY, mapPosition, dof, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
-	let ray, rayX, rayY, rayA: number;
+	let ray, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
 	// Set ray angle to player angle
 	rayA = playerA;
 	// Cast one ray for now
 	for (ray = 0; ray < 1; ray++) {
-		// Shut up typescript
+		// Initialize values
 		rayX = 0;
 		rayY = 0;
-		// rayOffsetX = 0;
-		// rayOffsetY = 0;
+		rayOffsetX = 0;
+		rayOffsetY = 0;
 		// dof = 0;
 		// Get the negative inverse of tan() for the ray angle
 		let negativeInverseTan = -1 / Math.tan(rayA);
-		// Ray angle greater than PI means it's looking up
+		//* Ray angle greater than PI means it's going up
 		if (rayA > Math.PI) {
-			// Ray Y position is the player position rounded to the nearest horizontal grid line
-			rayY = Math.round(playerY / levelCellDimensions.height);
-			// Ray X position is the difference between the player's
+			// Ray Y position is the player position floored to the above horizontal grid line
+			rayY = Math.floor(playerY / levelCellDimensions.height) * levelCellDimensions.height;
+			// Ray X position is the difference between the player Y position and
+			// the ray Y position times the negative inverse of tan() for the ray's angle
+			// plus the player X position so that it's relative to the player
 			rayX = (playerY - rayY) * negativeInverseTan + playerX;
-
-			fillLine(playerX, playerY, rayX, rayY, 1, 'Blue');
-			fillText(`Ray x: ${rayX}`, 3, 40, debugColor);
-			fillText(`Ray y: ${rayY}`, 3, 50, debugColor);
-
-			// rayOffsetY = -64;
-			// rayOffsetX = -rayOffsetY * negativeInverseTan;
-			// fillText(rayOffsetY, 3, 60, 'Black');
-			// fillText(rayOffsetX, 3, 60, 'Black');
+			// Next Y offset is simply the above horizontal line
+			rayOffsetY -= levelCellDimensions.height;
+			// Next X offset is the negative of the Y offset (so that it's positive)
+			// times the negative inverse of tan() for the ray's angle
+			rayOffsetX = -rayOffsetY * negativeInverseTan;
 		}
+		//* Ray angle smaller than PI means it's going down
+		if (rayA < Math.PI) {
+			// Ray Y position is the player position floored to the below (+1) horizontal grid line
+			rayY = (Math.floor(playerY / levelCellDimensions.height) + 1) * levelCellDimensions.height;
+			// Ray X position is the difference between the player Y position and
+			// the ray Y position times the negative inverse of tan() for the ray's angle
+			// plus the player X position so that it's relative to the player
+			rayX = (playerY - rayY) * negativeInverseTan + playerX;
+			// Next Y offset is simply the above horizontal line
+			rayOffsetY += levelCellDimensions.height;
+			// Next X offset is the Y offset times the negative inverse of tan() for the ray's angle
+			rayOffsetX = -rayOffsetY * negativeInverseTan;
+		}
+		fillLine(playerX, playerY, rayX, rayY, 4, 'DeepSkyBlue');
+		fillLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'Orange');
+
+		debugText(`Ray Angle: ${Math.round((rayX + Number.EPSILON) * 100) / 100}`);
+		debugText(`Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`);
+		debugText(`Ray offset: ${Math.round(rayOffsetX)}, ${Math.round(rayOffsetY)}`);
 		// if (rayA == 0 || rayA == Math.PI) {
 		// 	rayX = playerX;
 		// 	rayY = playerY;
@@ -206,6 +233,22 @@ function handleInput(key: string, currentStatus: boolean) {
 			break;
 		case 'd':
 			keysDown.d = currentStatus;
+			break;
+		case 'ArrowUp':
+			playerA = (Math.PI * 3) / 2;
+			calculatePlayerDirections();
+			break;
+		case 'ArrowLeft':
+			playerA = Math.PI;
+			calculatePlayerDirections();
+			break;
+		case 'ArrowDown':
+			playerA = Math.PI / 2;
+			calculatePlayerDirections();
+			break;
+		case 'ArrowRight':
+			playerA = 0;
+			calculatePlayerDirections();
 			break;
 		default:
 			break;
@@ -267,9 +310,21 @@ function fillLine(startX: number, startY: number, endX: number, endY: number, wi
 	ctx.stroke();
 }
 
-function fillText(text: any, x: number, y: number, color: any, maxWidth?: number) {
-	ctx.fillStyle = color;
-	ctx.fillText(text, x, y, maxWidth);
+function debugText(text: string) {
+	if (debugActive) {
+		let textX = 6;
+		let textY = debugLine * 32 + 32;
+
+		ctx.fillStyle = 'White';
+		ctx.font = '28px sans-serif';
+		ctx.fillText(text, textX, textY);
+
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = 'Black';
+		ctx.strokeText(text, textX, textY);
+
+		debugLine++;
+	}
 }
 
 function fillRect(x: number, y: number, width: number, height: number, color: any) {

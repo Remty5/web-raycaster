@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Key test</title>
+		<meta charset="utf-8" />
+	</head>
+	<body>
+		<p>Focus the IFrame first (e.g. by clicking in it), then try pressing some keys.</p>
+		<p id="log"></p>
+		<script>
+			document.addEventListener('keydown', logKey);
+
+			function logKey(e) {
+				log.textContent += ` ${e.key}`;
+			}
+		</script>
+	</body>
+</html>
