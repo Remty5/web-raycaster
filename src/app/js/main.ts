@@ -1,6 +1,7 @@
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let fps = 60;
+let renderLineNumber: number;
 
 //* Debug (info...)
 let debugActive: { [id: string]: boolean } = {};
@@ -29,6 +30,15 @@ let keysDown = {
 	q: false,
 	s: false,
 	d: false,
+};
+//* Render area dimensions and position
+let renderCanvasDimensions = {
+	width: 600,
+	height: 600,
+};
+let renderCanvasPosition = {
+	xOffset: 600,
+	// yOffset: 0,
 };
 //* Level dimensions for later use
 let levelCanvasDimensions = { width: 600, height: 600 };
@@ -124,6 +134,7 @@ function tick() {
 
 function resetCounters() {
 	debugTextLine = 0;
+	renderLineNumber = 0;
 }
 
 function calculateMovement() {
@@ -158,9 +169,6 @@ function renderScreen() {
 	//* Level
 	drawLevel();
 
-	//* Player direction
-	fillLine(playerX, playerY, playerX + playerDX * 10, playerY + playerDY * 10, 6, 'Red');
-
 	//* Debug
 	debugText(`Player: ${Math.round(playerX)}, ${Math.round(playerY)}`, 'Text');
 	debugText(`Player direction: ${Math.round((playerDX + Number.EPSILON) * 100) / 100}, ${Math.round((playerDY + Number.EPSILON) * 100) / 100}`, 'Text');
@@ -169,6 +177,9 @@ function renderScreen() {
 	//* Rays
 	drawRays3D();
 
+	//* Player direction
+	fillLine(playerX, playerY, playerX + playerDX * 6, playerY + playerDY * 6, 6, 'Red');
+
 	//* Player
 	let playerSize = 10;
 	fillCentredRect(playerX, playerY, playerSize, playerSize, 'Green');
@@ -176,11 +187,17 @@ function renderScreen() {
 
 function drawRays3D() {
 	// Create needed variables
-	let ray, mapX, mapY, mapPosition, dof, maxDof, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
-	// Set ray angle to player angle
-	rayA = playerA;
-	// Cast one ray for now
-	for (ray = 0; ray < 1; ray++) {
+	let ray, mapX, mapY, mapPosition, dof, maxDof, rayX, rayY, rayA, rayOffsetX, rayOffsetY, distanceToRay: number;
+	// Set ray angle
+	rayA = playerA - (Math.PI / 180) * 30;
+
+	if (rayA < 0) {
+		rayA += Math.PI * 2;
+	}
+	if (rayA > Math.PI * 2) {
+		rayA -= Math.PI * 2;
+	}
+	for (ray = 0; ray < 60; ray++) {
 		// Initialize values
 		rayX = 0;
 		rayY = 0;
@@ -405,23 +422,56 @@ function drawRays3D() {
 		if (rayHorizontalDistance < rayVerticalDistance) {
 			rayX = rayHorizontalX;
 			rayY = rayHorizontalY;
+			distanceToRay = rayHorizontalDistance;
 		} else if (rayHorizontalDistance > rayVerticalDistance) {
 			rayX = rayVerticalX;
 			rayY = rayVerticalY;
+			distanceToRay = rayVerticalDistance;
 		} else {
-			rayX = rayHorizontalX;
-			rayY = rayHorizontalY;
+			rayX = rayVerticalX;
+			rayY = rayVerticalY;
+			distanceToRay = rayVerticalDistance;
 		}
 
-		debugLine(playerX, playerY, rayX, rayY, 4, 'RayLine', 'Yellow');
+		debugLine(playerX, playerY, rayX, rayY, 2, 'RayLine', 'Yellow');
 
 		debugText(`Ray Angle: ${Math.round((rayA + Number.EPSILON) * 100) / 100}`, 'RayText');
 		debugText(`Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`, 'RayText');
+
+		//*
+		//* Draw 3D Render
+		//*
+
+		let cosA = playerA - rayA;
+		if (cosA < 0) {
+			cosA += Math.PI * 2;
+		}
+		if (cosA > Math.PI * 2) {
+			cosA -= Math.PI * 2;
+		}
+		distanceToRay = distanceToRay * Math.cos(cosA);
+
+		let renderLineHeight = (levelCellDimensions.height * renderCanvasDimensions.height) / distanceToRay;
+		if (renderLineHeight > renderCanvasDimensions.height) {
+			renderLineHeight = renderCanvasDimensions.height;
+		}
+		debugText(`distance: ${distanceToRay}`, 'Text');
+		fillRect(renderCanvasPosition.xOffset + renderLineNumber * 10, renderCanvasDimensions.height / 2 - renderLineHeight / 2, 10, renderLineHeight, 'red');
+		renderLineNumber++;
+
+		//* Add one degree to ray angle
+		rayA += Math.PI / 180;
+		if (rayA < 0) {
+			rayA += Math.PI * 2;
+		}
+		if (rayA > Math.PI * 2) {
+			rayA -= Math.PI * 2;
+		}
 	}
 }
 
 function calculateDistance(aX: number, aY: number, bX: number, bY: number): number {
-	return Math.sqrt(Math.pow(bX - aX, 2) * Math.pow(bY - aY, 2));
+	return Math.sqrt(Math.pow(bX - aX, 2) + Math.pow(bY - aY, 2));
 }
 
 function handleInput(key: string, currentStatus: boolean) {
