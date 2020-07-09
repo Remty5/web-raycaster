@@ -7,15 +7,15 @@ let debugActive: boolean = true;
 let debugLine: number;
 
 //* Player starting position
-let playerX: number = 60;
-let playerY: number = 60;
+let playerX: number = 413;
+let playerY: number = 287;
 
 //* Player rotation and movement speed
 let playerMovementSpeed: number = 2;
 let playerRotationSpeed: number = 0.05;
 
 //* Initial player direction
-let playerA: number = Math.PI / 4;
+let playerA: number = (3 * Math.PI) / 2;
 let playerDX: number;
 let playerDY: number;
 function calculatePlayerDirections() {
@@ -154,8 +154,7 @@ function renderScreen() {
 
 function drawRays3D() {
 	// Create needed variables
-	// let ray, mapX, mapY, mapPosition, dof, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
-	let ray, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
+	let ray, mapX, mapY, mapPosition, dof, maxDof, rayX, rayY, rayA, rayOffsetX, rayOffsetY: number;
 	// Set ray angle to player angle
 	rayA = playerA;
 	// Cast one ray for now
@@ -165,7 +164,8 @@ function drawRays3D() {
 		rayY = 0;
 		rayOffsetX = 0;
 		rayOffsetY = 0;
-		// dof = 0;
+		dof = 0;
+		maxDof = 10;
 		// Get the negative inverse of tan() for the ray angle
 		let negativeInverseTan = -1 / Math.tan(rayA);
 		//* Ray angle greater than PI means it's going up
@@ -177,7 +177,7 @@ function drawRays3D() {
 			// plus the player X position so that it's relative to the player
 			rayX = (playerY - rayY) * negativeInverseTan + playerX;
 			// Next Y offset is simply the above horizontal line
-			rayOffsetY -= levelCellDimensions.height;
+			rayOffsetY = -levelCellDimensions.height;
 			// Next X offset is the negative of the Y offset (so that it's positive)
 			// times the negative inverse of tan() for the ray's angle
 			rayOffsetX = -rayOffsetY * negativeInverseTan;
@@ -191,32 +191,59 @@ function drawRays3D() {
 			// plus the player X position so that it's relative to the player
 			rayX = (playerY - rayY) * negativeInverseTan + playerX;
 			// Next Y offset is simply the above horizontal line
-			rayOffsetY += levelCellDimensions.height;
+			rayOffsetY = levelCellDimensions.height;
 			// Next X offset is the Y offset times the negative inverse of tan() for the ray's angle
 			rayOffsetX = -rayOffsetY * negativeInverseTan;
 		}
-		fillLine(playerX, playerY, rayX, rayY, 4, 'DeepSkyBlue');
-		fillLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'Orange');
+		//* Looking straight left or right
+		if (rayA === 0 || rayA === Math.PI) {
+			rayX = playerX;
+			rayY = playerY;
+			dof = maxDof;
+		}
+
+		//* While no wall has been hit
+		while (dof < maxDof) {
+			mapX = Math.floor(rayX / levelCellDimensions.width);
+			mapY = Math.floor(rayY / levelCellDimensions.height);
+			mapPosition = mapY * levelMapDimensions.width + mapX;
+			// Check is ray hit a wall
+			if (mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
+				// Wall hit, stop while look
+				strokeRect(
+					mapX * levelCellDimensions.width + 1,
+					mapY * levelCellDimensions.height + 1,
+					levelCellDimensions.width - 1,
+					levelCellDimensions.height - 1,
+					2,
+					'lime'
+				);
+				break;
+			} else {
+				strokeRect(
+					mapX * levelCellDimensions.width + 1,
+					mapY * levelCellDimensions.height + 1,
+					levelCellDimensions.width - 1,
+					levelCellDimensions.height - 1,
+					2,
+					'red'
+				);
+				rayX += rayOffsetX;
+				rayY += rayOffsetY;
+				dof++;
+			}
+		}
+
+		// fillLine(playerX, playerY, rayX, rayY, 4, 'DeepSkyBlue');
+		// fillLine(playerX, playerY, rayX + rayOffsetX, rayY + rayOffsetY, 1, 'Orange');
+		fillRect(rayX - 3, rayY - 3, 6, 6, 'Yellow');
 
 		debugText(`Ray Angle: ${Math.round((rayX + Number.EPSILON) * 100) / 100}`);
 		debugText(`Ray: ${Math.round(rayX)}, ${Math.round(rayY)}`);
 		debugText(`Ray offset: ${Math.round(rayOffsetX)}, ${Math.round(rayOffsetY)}`);
-		// if (rayA == 0 || rayA == Math.PI) {
-		// 	rayX = playerX;
-		// 	rayY = playerY;
-		// 	dof = 8;
-		// }
-		// while (dof < 8) {
-		// 	mapX = Math.round(rayX / 64);
-		// 	mapY = Math.round(rayY / 64);
-		// 	mapPosition = mapY * levelMapDimensions.width + mapX;
-		// 	if (mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) break;
-		// 	else {
-		// 		rayX += rayOffsetX;
-		// 		rayY += rayOffsetY;
-		// 		dof++;
-		// 	}
-		// }
+		debugText(`Current dof: ${dof}`);
+		debugText(`Map: ${mapX}, ${mapY}`);
+		debugText(`Map position: ${mapPosition}`);
 	}
 }
 
@@ -330,4 +357,10 @@ function debugText(text: string) {
 function fillRect(x: number, y: number, width: number, height: number, color: any) {
 	ctx.fillStyle = color;
 	ctx.fillRect(x, y, width, height);
+}
+
+function strokeRect(x: number, y: number, width: number, height: number, lineWidth: number, color: any) {
+	ctx.strokeStyle = color;
+	ctx.lineWidth = lineWidth;
+	ctx.strokeRect(x, y, width, height);
 }
