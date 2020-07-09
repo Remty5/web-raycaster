@@ -1,8 +1,9 @@
 # web-raycaster
 
-Attempt at making a simple raycaster with canvas.
+Attempt at making a simple raycaster with canvas.\
+[Video that made me want to do this](https://youtu.be/gYRrGTC7GtA)
 
-Other things used:
+Amazing tools used used:
 
 - [Yarn](https://yarnpkg.com/)
 - [TypeScript](https://www.typescriptlang.org/)
