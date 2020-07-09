@@ -283,11 +283,11 @@ function drawRays3D() {
 			mapX = Math.floor(rayX / levelCellDimensions.width);
 			// Calculate the ray Y position on the map
 			// I don't like this, i don't know why it doesn't work but i have to do this terrible thing
-			if (Math.sign(rayOffsetY) === -1) {
+			if (rayOffsetY > 0) {
 				// Looking up, offset wall check one up
 				mapY = Math.floor(rayY / levelCellDimensions.height) - 1;
 			}
-			if (Math.sign(rayOffsetY) === 1) {
+			if (rayOffsetY > 0) {
 				// Looking down, no need for offset
 				mapY = Math.floor(rayY / levelCellDimensions.height);
 			}
@@ -383,10 +383,10 @@ function drawRays3D() {
 
 		//* While no wall has been hit
 		while (dof < maxDof) {
-			if (Math.sign(rayOffsetX) === -1) {
+			if (rayOffsetX < 0) {
 				mapX = Math.floor(rayX / levelCellDimensions.width) - 1;
 			}
-			if (Math.sign(rayOffsetX) === 1) {
+			if (rayOffsetX > 0) {
 				mapX = Math.floor(rayX / levelCellDimensions.width);
 			}
 			mapY = Math.floor(rayY / levelCellDimensions.height);
