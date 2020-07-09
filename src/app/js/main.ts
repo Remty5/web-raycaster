@@ -34,11 +34,11 @@ let keysDown = {
 //* Render area dimensions and position
 let renderCanvasDimensions = {
 	width: 600,
-	height: 600,
+	height: 535,
 };
 let renderCanvasPosition = {
 	xOffset: 600,
-	// yOffset: 0,
+	yOffset: 600 / 2 - renderCanvasDimensions.height / 2,
 };
 //* Level dimensions for later use
 let levelCanvasDimensions = { width: 600, height: 600 };
@@ -63,14 +63,14 @@ let levelMap = [
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 5, 5, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 7, 7, 0, 8, 8, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 7, 7, 0, 8, 8, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 7, 7, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
+	1, 0, 0, 7, 7, 0, 8, 8, 0, 0, 5, 0, 0, 6, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 1,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -175,6 +175,7 @@ function renderScreen() {
 	debugText(`Player angle: ${Math.round((playerA + Number.EPSILON) * 100) / 100}`, 'Text');
 
 	//* Rays
+	drawRenderAreaBackground();
 	drawRays3D();
 
 	//* Player direction
@@ -185,11 +186,28 @@ function renderScreen() {
 	fillCentredRect(playerX, playerY, playerSize, playerSize, 'Green');
 }
 
+function drawRenderAreaBackground() {
+	let floorColor = getCellColor(0);
+	fillRect(
+		renderCanvasPosition.xOffset,
+		renderCanvasPosition.yOffset + renderCanvasDimensions.height / 2,
+		renderCanvasDimensions.width,
+		renderCanvasDimensions.height / 2,
+		floorColor
+	);
+	let ceilingColor = 'Gray';
+	fillRect(renderCanvasPosition.xOffset, renderCanvasPosition.yOffset, renderCanvasDimensions.width, renderCanvasDimensions.height / 2, ceilingColor);
+}
+
 function drawRays3D() {
 	// Create needed variables
 	let ray, mapX, mapY, mapPosition, dof, maxDof, rayX, rayY, rayA, rayOffsetX, rayOffsetY, distanceToRay: number;
+	// Set number of rays and resolution
+	let rayNumber = 120;
+	// Ray resolution in degrees, will be converted to radians
+	let rayResolution = 0.5;
 	// Set ray angle
-	rayA = playerA - (Math.PI / 180) * 30;
+	rayA = playerA - (Math.PI / ((1 / rayResolution) * 180)) * (rayNumber / 2);
 
 	if (rayA < 0) {
 		rayA += Math.PI * 2;
@@ -197,16 +215,17 @@ function drawRays3D() {
 	if (rayA > Math.PI * 2) {
 		rayA -= Math.PI * 2;
 	}
-	for (ray = 0; ray < 60; ray++) {
+	for (ray = 0; ray < rayNumber; ray++) {
 		// Initialize values
 		rayX = 0;
 		rayY = 0;
 		rayOffsetX = 0;
 		rayOffsetY = 0;
 		dof = 0;
-		maxDof = 30;
+		maxDof = 60;
 		mapX = 0;
 		mapY = 0;
+		distanceToRay = 0;
 
 		//*
 		//*  Horizontal lines
@@ -216,6 +235,7 @@ function drawRays3D() {
 		let rayHorizontalDistance = 100000;
 		let rayHorizontalX = playerX;
 		let rayHorizontalY = playerY;
+		let rayHorizontalColor: string = 'Violet';
 
 		// Get the negative inverse of tan() for the ray angle
 		let negativeInverseTan = -1 / Math.tan(rayA);
@@ -292,6 +312,7 @@ function drawRays3D() {
 				rayHorizontalX = rayX;
 				rayHorizontalY = rayY;
 				rayHorizontalDistance = calculateDistance(playerX, playerY, rayHorizontalX, rayHorizontalY);
+				rayHorizontalColor = getCellColor(levelMap[mapPosition]);
 				break;
 			} else {
 				debugStrokeRect(
@@ -331,6 +352,7 @@ function drawRays3D() {
 		let rayVerticalDistance = 100000;
 		let rayVerticalX = playerX;
 		let rayVerticalY = playerY;
+		let rayVerticalColor: string = 'Violet';
 
 		// Get the negative of tan() for the ray angle
 		let negativeTan = -Math.tan(rayA);
@@ -386,6 +408,7 @@ function drawRays3D() {
 				rayVerticalX = rayX;
 				rayVerticalY = rayY;
 				rayVerticalDistance = calculateDistance(playerX, playerY, rayVerticalX, rayVerticalY);
+				rayVerticalColor = getCellColor(levelMap[mapPosition]);
 				break;
 			} else {
 				debugStrokeRect(
@@ -419,20 +442,19 @@ function drawRays3D() {
 		//* Calculate shortest distance
 		//*
 
+		let rayColor: string = 'Violet';
+
 		if (rayHorizontalDistance < rayVerticalDistance) {
 			rayX = rayHorizontalX;
 			rayY = rayHorizontalY;
 			distanceToRay = rayHorizontalDistance;
+			rayColor = rayHorizontalColor;
 		} else if (rayHorizontalDistance > rayVerticalDistance) {
 			rayX = rayVerticalX;
 			rayY = rayVerticalY;
 			distanceToRay = rayVerticalDistance;
-		} else {
-			rayX = rayVerticalX;
-			rayY = rayVerticalY;
-			distanceToRay = rayVerticalDistance;
+			rayColor = rayVerticalColor;
 		}
-
 		debugLine(playerX, playerY, rayX, rayY, 2, 'RayLine', 'Yellow');
 
 		debugText(`Ray Angle: ${Math.round((rayA + Number.EPSILON) * 100) / 100}`, 'RayText');
@@ -455,12 +477,18 @@ function drawRays3D() {
 		if (renderLineHeight > renderCanvasDimensions.height) {
 			renderLineHeight = renderCanvasDimensions.height;
 		}
-		debugText(`distance: ${distanceToRay}`, 'Text');
-		fillRect(renderCanvasPosition.xOffset + renderLineNumber * 10, renderCanvasDimensions.height / 2 - renderLineHeight / 2, 10, renderLineHeight, 'red');
+		let renderLineWidth = renderCanvasDimensions.width / rayNumber;
+		fillRect(
+			renderCanvasPosition.xOffset + renderLineNumber * renderLineWidth,
+			renderCanvasPosition.yOffset + renderCanvasDimensions.height / 2 - renderLineHeight / 2,
+			renderLineWidth,
+			renderLineHeight,
+			rayColor
+		);
 		renderLineNumber++;
 
 		//* Add one degree to ray angle
-		rayA += Math.PI / 180;
+		rayA += Math.PI / ((1 / rayResolution) * 180);
 		if (rayA < 0) {
 			rayA += Math.PI * 2;
 		}
@@ -511,47 +539,41 @@ function handleInput(key: string, currentStatus: boolean) {
 
 function drawLevel() {
 	levelMap.forEach((n, i) => {
-		// console.log(n, i);
 		let c = i % levelMapDimensions.width;
 		let l = Math.floor(i / levelMapDimensions.height);
-		let color;
-		switch (n) {
-			case 0:
-				color = 'Black';
-				break;
-			case 1:
-				color = 'White';
-				break;
-			case 2:
-				color = 'Blue';
-				break;
-			case 3:
-				color = 'Red';
-				break;
-			case 4:
-				color = 'Green';
-				break;
-			case 5:
-				color = 'Coral';
-				break;
-			case 6:
-				color = 'LimeGreen';
-				break;
-			case 7:
-				color = 'DeepSkyBlue';
-				break;
-			case 8:
-				color = 'Gold';
-				break;
-			default:
-				color = 'Black';
-				break;
-		}
-		// Offset (grid pattern):
+		let color = getCellColor(n);
+		// Offset (1px grid pattern):
 		fillRect(levelCellDimensions.width * c + 1, levelCellDimensions.height * l + 1, levelCellDimensions.width - 1, levelCellDimensions.height - 1, color);
+		// Offset (2px grid pattern):
+		// fillRect(levelCellDimensions.width * c + 1, levelCellDimensions.height * l + 1, levelCellDimensions.width - 2, levelCellDimensions.height - 2, color);
 		// No offset (no grid pattern):
 		// fillRect(levelCellDimensions.width * c, levelCellDimensions.height * l, levelCellDimensions.width, levelCellDimensions.height, color);
 	});
+}
+
+function getCellColor(number: number): string {
+	switch (number) {
+		case 0:
+			return 'Black';
+		case 1:
+			return 'White';
+		case 2:
+			return 'Blue';
+		case 3:
+			return 'Red';
+		case 4:
+			return 'Green';
+		case 5:
+			return 'Coral';
+		case 6:
+			return 'LimeGreen';
+		case 7:
+			return 'DeepSkyBlue';
+		case 8:
+			return 'Gold';
+		default:
+			return 'Violet';
+	}
 }
 
 function fillLine(startX: number, startY: number, endX: number, endY: number, width: number, color: any) {
