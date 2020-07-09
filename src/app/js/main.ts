@@ -209,7 +209,7 @@ function drawRays3D() {
 			mapPosition = mapY * levelMapDimensions.width + mapX;
 			// Check is ray hit a wall
 			if (mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
-				// Wall hit, stop while look
+				// Wall hit, stop while loop
 				strokeRect(
 					mapX * levelCellDimensions.width + 1,
 					mapY * levelCellDimensions.height + 1,
