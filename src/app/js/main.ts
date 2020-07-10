@@ -41,15 +41,72 @@ let renderCanvasPosition = {
 	yOffset: 600 / 2 - renderCanvasDimensions.height / 2,
 };
 //* Level dimensions for later use
-let levelCanvasDimensions = { width: 600, height: 600 };
-let levelMapDimensions = { width: 24, height: 24 };
-let levelCellDimensions = {
-	width: levelCanvasDimensions.width / levelMapDimensions.width,
-	height: levelCanvasDimensions.height / levelMapDimensions.height,
+let levelCanvasDimensions = {
+	width: 600,
+	height: 600,
 };
+let levelMapDimensions = {
+	width: 24,
+	height: 24,
+};
+let levelCellDimensions: { width: number; height: number };
+function updateCellDimensions() {
+	levelCellDimensions = {
+		width: levelCanvasDimensions.width / levelMapDimensions.width,
+		height: levelCanvasDimensions.height / levelMapDimensions.height,
+	};
+}
+
+updateCellDimensions();
 //* Level map
+let levelMap: number[];
+
+//* Map A
+let mapADimensions = {
+	width: 15,
+	height: 8,
+};
 // prettier-ignore
-let levelMap = [
+let mapA = [
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 3, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0,
+	0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 5, 0, 0, 2, 0, 0, 0, 0, 0, 0,
+	0, 7, 0, 0, 0, 5, 0, 0, 2, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+]
+//* Map B
+let mapBDimensions = {
+	width: 8,
+	height: 15,
+};
+// prettier-ignore
+let mapB = [
+	1, 1, 1, 1, 1, 1, 1, 1,
+	1, 7, 0, 0, 4, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 1,
+	1, 0, 0, 0, 4, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 1,
+	1, 5, 5, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 8, 1,
+	1, 0, 0, 0, 0, 0, 8, 1,
+	1, 2, 2, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 1,
+	1, 0, 0, 0, 0, 3, 3, 1,
+	1, 0, 0, 0, 0, 3, 0, 1,
+	1, 0, 0, 0, 0, 0, 0, 1,
+	1, 1, 1, 1, 1, 1, 1, 1,
+]
+//* Map C
+let mapCDimensions = {
+	width: 24,
+	height: 24,
+};
+// prettier-ignore
+let mapC = [
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 0, 0, 0, 4, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -75,6 +132,9 @@ let levelMap = [
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 ]
+//* Default map is map C
+levelMapDimensions = mapCDimensions;
+levelMap = mapC;
 
 window.onload = function () {
 	console.log('Hello world!');
@@ -86,6 +146,9 @@ window.onload = function () {
 
 	//* Initialize debug
 	debugInit();
+
+	//* Init
+	init();
 
 	setInterval(tick, 1000 / fps);
 	// tick();
@@ -121,6 +184,33 @@ function addDebugToggle(buttonID: string) {
 	button.onclick = function () {
 		debugActive[buttonID] = !debugActive[buttonID];
 		button.innerHTML = `${buttonID}: ${debugActive[buttonID]}`;
+	};
+}
+
+function init() {
+	addMapButton('mapA');
+	addMapButton('mapB');
+	addMapButton('mapC');
+}
+
+function addMapButton(buttonID: string) {
+	let button = document.getElementById(buttonID) as HTMLButtonElement;
+	button.onclick = function () {
+		switch (buttonID) {
+			case 'mapA':
+				levelMapDimensions = mapADimensions;
+				levelMap = mapA;
+				break;
+			case 'mapB':
+				levelMapDimensions = mapBDimensions;
+				levelMap = mapB;
+				break;
+			case 'mapC':
+				levelMapDimensions = mapCDimensions;
+				levelMap = mapC;
+				break;
+		}
+		updateCellDimensions();
 	};
 }
 
@@ -283,7 +373,7 @@ function drawRays3D() {
 			mapX = Math.floor(rayX / levelCellDimensions.width);
 			// Calculate the ray Y position on the map
 			// I don't like this, i don't know why it doesn't work but i have to do this terrible thing
-			if (rayOffsetY > 0) {
+			if (rayOffsetY < 0) {
 				// Looking up, offset wall check one up
 				mapY = Math.floor(rayY / levelCellDimensions.height) - 1;
 			}
@@ -293,7 +383,7 @@ function drawRays3D() {
 			}
 			mapPosition = mapY * levelMapDimensions.width + mapX;
 			// Check is ray hit a wall
-			if (mapPosition > 0 && mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
+			if (mapPosition >= 0 && mapPosition < levelMapDimensions.width * levelMapDimensions.height && levelMap[mapPosition]) {
 				// Wall hit, stop while loop
 				debugStrokeRect(
 					mapX * levelCellDimensions.width + 1,
@@ -538,7 +628,7 @@ function handleInput(key: string, currentStatus: boolean) {
 function drawLevel() {
 	levelMap.forEach((n, i) => {
 		let c = i % levelMapDimensions.width;
-		let l = Math.floor(i / levelMapDimensions.height);
+		let l = Math.floor(i / levelMapDimensions.width);
 		let color = getCellColor(n);
 		// Offset (1px grid pattern):
 		fillRect(levelCellDimensions.width * c + 1, levelCellDimensions.height * l + 1, levelCellDimensions.width - 1, levelCellDimensions.height - 1, color);
