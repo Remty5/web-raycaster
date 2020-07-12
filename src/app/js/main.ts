@@ -530,7 +530,7 @@ function drawRays3D() {
 		//* Calculate shortest distance
 		//*
 
-		let rayColor: string = 'Violet';
+		let rayColor: string = 'Transparent';
 
 		if (rayHorizontalDistance < rayVerticalDistance) {
 			rayX = rayHorizontalX;
