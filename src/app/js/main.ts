@@ -400,7 +400,7 @@ function drawRays3D() {
 				rayHorizontalX = rayX;
 				rayHorizontalY = rayY;
 				rayHorizontalDistance = calculateDistance(playerX, playerY, rayHorizontalX, rayHorizontalY);
-				rayHorizontalColor = getCellColor(levelMap[mapPosition]);
+				rayHorizontalColor = getCellDarkerColor(levelMap[mapPosition]);
 				break;
 			} else {
 				debugStrokeRect(
@@ -659,6 +659,31 @@ function getCellColor(number: number): string {
 			return 'DeepSkyBlue';
 		case 8:
 			return 'Gold';
+		default:
+			return 'Violet';
+	}
+}
+
+function getCellDarkerColor(number: number): string {
+	switch (number) {
+		case 0:
+			return 'Black';
+		case 1:
+			return '#f2f2f2'; // White
+		case 2:
+			return '#0000e6'; // Blue
+		case 3:
+			return '#e60000'; // Red
+		case 4:
+			return '#006600'; // Green
+		case 5:
+			return '#f2784b'; // Coral
+		case 6:
+			return '#2db92d'; // LimeGreen
+		case 7:
+			return '#00ace6'; // DeepSkyBlue
+		case 8:
+			return '#e6c300'; // Gold
 		default:
 			return 'Violet';
 	}
